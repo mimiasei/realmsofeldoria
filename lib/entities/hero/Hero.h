@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <array>
 
 enum class HeroClass {
     Knight,
