@@ -150,9 +150,24 @@ void GameState::processMonthlyEvents() {
 }
 
 void GameState::generateDailyResources() {
-    for (auto& [id, player] : players) {
+    for (auto& [playerId, player] : players) {
         Resources dailyIncome;
         dailyIncome.gold = 1000; // Base daily gold income
+        
+        // Add income from controlled mines
+        if (gameMap) {
+            // This is a simplified approach - in a full implementation,
+            // we'd track owned objects more efficiently
+            for (auto& obj : gameMap->getAllObjects()) {
+                if (obj->getType() == ObjectType::Mine) {
+                    ResourceMine* mine = static_cast<ResourceMine*>(obj.get());
+                    if (mine->getOwner() == playerId) {
+                        dailyIncome[mine->getResourceType()] += mine->getDailyProduction();
+                    }
+                }
+            }
+        }
+        
         player->addResources(dailyIncome);
     }
 }

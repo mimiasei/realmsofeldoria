@@ -142,6 +142,7 @@ public:
     const MapObject* getObject(uint32_t objectId) const;
     void removeObject(uint32_t objectId);
     std::vector<MapObject*> getObjectsAt(const Position& pos);
+    const std::vector<std::unique_ptr<MapObject>>& getAllObjects() const { return objects; }
     
     // Hero movement
     bool canHeroMoveTo(HeroID heroId, const Position& pos) const;

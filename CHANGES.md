@@ -148,3 +148,35 @@ realmsofeldoria/
 - **Extensibility** - Plugin-friendly architecture for future features
 
 This implementation provides a solid foundation for a complete HOMM3-like strategy game, with all core systems in place and ready for feature expansion.
+
+## Update 2: ASCII Gameplay Improvements
+
+### Gameplay Fixes Applied
+- **Fixed hero exhaustion messaging** - Heroes now properly display "exhausted and must rest" when out of movement points
+- **Improved object interaction** - Fixed mine discovery only triggering when actually stepping on objects
+- **Enhanced monster encounters** - Monsters now properly interact when heroes step on them, granting experience and removing the monster group
+- **Mine claiming system** - Heroes can now claim neutral mines for resource income
+- **Resource generation** - Daily income now includes production from captured mines
+- **Object differentiation** - Gold mines and sawmills show proper descriptions and income values
+
+### New Features Added
+- Hero exhaustion system with proper messaging
+- Mine ownership and claiming mechanics
+- Monster encounter system with experience rewards
+- Enhanced daily resource generation from controlled mines
+- Improved object interaction feedback with detailed messages
+
+### Technical Improvements
+- Added `getAllObjects()` method to GameMap for resource calculations
+- Enhanced `checkForInteraction()` with proper object type handling
+- Fixed movement validation to show exhaustion messages
+- Improved resource mine integration with daily income system
+
+### Current Gameplay Status
+✅ **Fully Playable ASCII Game** - Complete HOMM3-like experience
+✅ **Object Interactions** - Mines, monsters, and other objects work correctly
+✅ **Resource Economy** - Mine income properly integrated
+✅ **Hero Progression** - Experience gain from monster encounters
+✅ **Movement System** - Proper exhaustion feedback and restrictions
+
+The ASCII version now provides a complete and balanced gameplay experience with proper object interactions, resource management, and hero progression systems.

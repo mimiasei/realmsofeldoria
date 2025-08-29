@@ -16,23 +16,27 @@ OBJDIR = $(BUILDDIR)/obj
 
 # Find all source files
 LIB_SOURCES = $(shell find $(SRCDIR) -name "*.cpp")
-CLIENT_SOURCES = $(shell find $(CLIENT_SRCDIR) -name "*.cpp")
+SDL_CLIENT_SOURCES = $(CLIENT_SRCDIR)/main.cpp
+ASCII_CLIENT_SOURCES = $(CLIENT_SRCDIR)/ascii_client.cpp
 SERVER_SOURCES = $(shell find $(SERVER_SRCDIR) -name "*.cpp")
 
 # Object files
 LIB_OBJECTS = $(LIB_SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/lib/%.o)
-CLIENT_OBJECTS = $(CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
+SDL_CLIENT_OBJECTS = $(SDL_CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
+ASCII_CLIENT_OBJECTS = $(ASCII_CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
 SERVER_OBJECTS = $(SERVER_SOURCES:$(SERVER_SRCDIR)/%.cpp=$(OBJDIR)/server/%.o)
 
 # Targets
-CLIENT_TARGET = $(BINDIR)/RealmsClient
+SDL_CLIENT_TARGET = $(BINDIR)/RealmsClient
+ASCII_CLIENT_TARGET = $(BINDIR)/RealmsAscii
 SERVER_TARGET = $(BINDIR)/RealmsServer
 
-.PHONY: all clean client server dirs
+.PHONY: all clean client ascii server dirs
 
-all: dirs client server
+all: dirs ascii client server
 
-client: dirs $(CLIENT_TARGET)
+ascii: dirs $(ASCII_CLIENT_TARGET)
+client: dirs $(SDL_CLIENT_TARGET)  
 server: dirs $(SERVER_TARGET)
 
 # Create directories
@@ -48,9 +52,13 @@ dirs:
 	@mkdir -p $(OBJDIR)/client
 	@mkdir -p $(OBJDIR)/server
 
-# Build client
-$(CLIENT_TARGET): $(LIB_OBJECTS) $(CLIENT_OBJECTS)
+# Build SDL client
+$(SDL_CLIENT_TARGET): $(LIB_OBJECTS) $(SDL_CLIENT_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Build ASCII client  
+$(ASCII_CLIENT_TARGET): $(LIB_OBJECTS) $(ASCII_CLIENT_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Build server
 $(SERVER_TARGET): $(LIB_OBJECTS) $(SERVER_OBJECTS)
@@ -77,7 +85,10 @@ install-deps:
 	sudo apt-get update
 	sudo apt-get install -y build-essential libsdl2-dev cmake
 
-# Run the game
+# Run the games
+run-ascii: ascii
+	cd $(BINDIR) && ./RealmsAscii
+
 run-client: client
 	cd $(BINDIR) && ./RealmsClient
 
