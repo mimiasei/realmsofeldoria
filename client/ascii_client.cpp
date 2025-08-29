@@ -99,14 +99,44 @@ private:
         auto map = std::make_unique<GameMap>(MAP_WIDTH, MAP_HEIGHT, 1);
         map->setName("Tutorial Valley");
         
-        // Add some objects to the map
+        // Add strategic objects and encounters to the map
         auto goldMine = std::make_unique<ResourceMine>(1, Position(3, 3, 0), ResourceType::Gold, 1000);
         auto woodMine = std::make_unique<ResourceMine>(2, Position(15, 10, 0), ResourceType::Wood, 2);
-        auto monsters = std::make_unique<MonsterGroup>(3, Position(8, 5, 0), 1, 5); // 5 peasants
+        auto oreMine = std::make_unique<ResourceMine>(3, Position(17, 3, 0), ResourceType::Ore, 2);
         
+        // Add diverse monster encounters for battle testing
+        auto weakMonsters = std::make_unique<MonsterGroup>(4, Position(8, 5, 0), 1, 3); // 3 peasants (easy)
+        auto mediumMonsters = std::make_unique<MonsterGroup>(5, Position(14, 7, 0), 2, 4); // 4 archers (medium) 
+        auto strongMonsters = std::make_unique<MonsterGroup>(6, Position(10, 12, 0), 1, 8); // 8 peasants (hard)
+        auto eliteMonsters = std::make_unique<MonsterGroup>(7, Position(6, 2, 0), 2, 6); // 6 archers (very hard)
+        
+        // Add blocking monsters near valuable resources
+        auto mineGuard1 = std::make_unique<MonsterGroup>(8, Position(4, 3, 0), 1, 4); // Guard gold mine
+        auto mineGuard2 = std::make_unique<MonsterGroup>(9, Position(16, 10, 0), 2, 3); // Guard wood mine
+        auto mineGuard3 = std::make_unique<MonsterGroup>(10, Position(18, 3, 0), 1, 6); // Guard ore mine
+        
+        // Add scattered encounters for exploration
+        auto roamingGroup1 = std::make_unique<MonsterGroup>(11, Position(2, 8, 0), 1, 2); // Small group
+        auto roamingGroup2 = std::make_unique<MonsterGroup>(12, Position(11, 2, 0), 2, 2); // Small archers
+        auto roamingGroup3 = std::make_unique<MonsterGroup>(13, Position(18, 13, 0), 1, 5); // Medium group
+        
+        // Add objects to map
         map->addObject(std::move(goldMine));
         map->addObject(std::move(woodMine));
-        map->addObject(std::move(monsters));
+        map->addObject(std::move(oreMine));
+        
+        map->addObject(std::move(weakMonsters));
+        map->addObject(std::move(mediumMonsters));
+        map->addObject(std::move(strongMonsters));
+        map->addObject(std::move(eliteMonsters));
+        
+        map->addObject(std::move(mineGuard1));
+        map->addObject(std::move(mineGuard2));
+        map->addObject(std::move(mineGuard3));
+        
+        map->addObject(std::move(roamingGroup1));
+        map->addObject(std::move(roamingGroup2));
+        map->addObject(std::move(roamingGroup3));
         
         gameState.setMap(std::move(map));
         gameState.startGame();
