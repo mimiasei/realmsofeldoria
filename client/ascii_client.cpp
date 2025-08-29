@@ -9,6 +9,7 @@
 #include "../lib/gamestate/GameState.h"
 #include "../lib/entities/hero/Hero.h"
 #include "../lib/map/GameMap.h"
+#include "../lib/battle/Battle.h"
 
 class AsciiGameClient {
 private:
@@ -74,11 +75,19 @@ private:
         hero1->setSkill(SkillType::Leadership, 2);
         hero1->setSkill(SkillType::Attack, 1);
         
+        // Give Sir Arthur some starting troops
+        hero1->getArmy().addCreatures(1, 10); // 10 peasants
+        hero1->getArmy().addCreatures(2, 5);  // 5 archers
+        
         auto hero2 = std::make_unique<Hero>(2, "Lady Morgana", HeroClass::Wizard, Gender::Female);
         hero2->setPrimaryStats(3, 4, 8, 7);
         hero2->setPosition(Position(12, 8, 0));
         hero2->setSkill(SkillType::Wisdom, 2);
         hero2->setSkill(SkillType::Mysticism, 1);
+        
+        // Give Lady Morgana some starting troops
+        hero2->getArmy().addCreatures(1, 8);  // 8 peasants
+        hero2->getArmy().addCreatures(2, 7);  // 7 archers
         
         player->addHero(1);
         player->addHero(2);
@@ -418,15 +427,30 @@ private:
                     case ObjectType::Monster: {
                         MonsterGroup* monsters = static_cast<MonsterGroup*>(obj);
                         std::cout << hero->getName() << " encounters ";
-                        std::cout << monsters->getCount() << " creatures! ";
-                        std::cout << "(Battle system not yet implemented - monsters flee!)";
+                        std::cout << monsters->getCount() << " creatures!\n";
+                        std::cout << "Prepare for battle!\n\n";
                         
-                        // Remove the monster group for now
-                        map->removeObject(tile.objectId);
+                        // Initiate battle
+                        BattleResult result = conductBattle(hero, monsters);
                         
-                        // Grant some experience
-                        hero->gainExperience(50 * monsters->getCount());
-                        std::cout << "\n" << hero->getName() << " gains " << (50 * monsters->getCount()) << " experience!";
+                        if (result == BattleResult::Victory) {
+                            // Remove the monster group
+                            map->removeObject(tile.objectId);
+                            
+                            // Grant experience
+                            int expGained = monsters->getCount() * 75; // More exp for actual battle
+                            hero->gainExperience(expGained);
+                            std::cout << "\n" << hero->getName() << " gains " << expGained << " experience!";
+                            
+                            // Check for level up
+                            if (hero->canLevelUp()) {
+                                std::cout << "\n*** " << hero->getName() << " has gained a level! ***\n";
+                                hero->levelUp();
+                                std::cout << hero->getName() << " is now level " << hero->getLevel() << "!\n";
+                            }
+                        } else {
+                            std::cout << "\nThe monsters remain on the map...\n";
+                        }
                         break;
                     }
                     default:
@@ -460,6 +484,62 @@ private:
         // Reset hero movement
         for (const auto& [id, hero] : gameState.getAllHeroes()) {
             hero->resetMovementPoints();
+        }
+    }
+    
+    BattleResult conductBattle(Hero* hero, MonsterGroup* monsters) {
+        // Create battle engine
+        BattleEngine battle(hero);
+        
+        // Add hero's army to battle
+        const Army& army = hero->getArmy();
+        for (int i = 0; i < 7; i++) { // MAX_SLOTS = 7
+            const ArmySlot& slot = army.getSlot(i);
+            if (!slot.isEmpty()) {
+                battle.addPlayerUnit(slot.creatureId, slot.count);
+            }
+        }
+        
+        // Add monster units to battle
+        battle.addEnemyUnit(monsters->getCreatureType(), monsters->getCount());
+        
+        // Show battle start
+        AsciiBattleDisplay::showBattleStart(hero, battle.getEnemyUnits());
+        
+        std::cout << "Press any key to begin battle...\n";
+        getChar();
+        
+        // Execute battle
+        BattleResult result = battle.executeAutoBattle();
+        
+        // Show result
+        int expGained = battle.calculateExperienceGained();
+        AsciiBattleDisplay::showBattleResult(result, expGained);
+        
+        // Update hero's army based on battle results
+        if (result == BattleResult::Victory || result == BattleResult::Defeat) {
+            updateHeroArmyAfterBattle(hero, battle.getPlayerUnits());
+        }
+        
+        getChar(); // Wait for user input
+        return result;
+    }
+    
+    void updateHeroArmyAfterBattle(Hero* hero, const std::vector<BattleUnit>& survivingUnits) {
+        Army& army = hero->getArmy();
+        
+        // Clear current army
+        for (int i = 0; i < 7; i++) {
+            army.getSlot(i) = ArmySlot(); // Empty slot
+        }
+        
+        // Add surviving units back to army
+        int slotIndex = 0;
+        for (const auto& unit : survivingUnits) {
+            if (unit.count > 0 && slotIndex < 7) {
+                army.getSlot(slotIndex) = ArmySlot(unit.creatureId, unit.count);
+                slotIndex++;
+            }
         }
     }
 };

@@ -180,3 +180,42 @@ This implementation provides a solid foundation for a complete HOMM3-like strate
 ✅ **Movement System** - Proper exhaustion feedback and restrictions
 
 The ASCII version now provides a complete and balanced gameplay experience with proper object interactions, resource management, and hero progression systems.
+
+## Update 3: Battle System Implementation
+
+### Major Feature: Turn-Based Combat System
+- **Complete Battle Engine** - Implemented full VCMI-inspired battle system for monster encounters
+- **Army Management** - Heroes now start with armies (Peasants and Archers) that participate in combat
+- **Tactical Combat** - Round-based battles with damage calculations, unit losses, and strategic AI
+- **Battle Display** - ASCII battle interface showing forces, rounds, damage, and results
+- **Post-Battle Updates** - Army composition automatically updated based on battle casualties
+
+### Battle System Features
+- **Auto-Battle Implementation** - Intelligent AI handles combat decisions for both sides
+- **Damage Calculations** - Proper attack/defense mechanics with hero bonuses and randomization
+- **Unit Management** - Track individual unit counts, health, and battle status
+- **Experience Rewards** - Enhanced experience gain from actual combat (75 XP per enemy unit)
+- **Level Up Integration** - Automatic level progression with stat increases after battles
+
+### Technical Implementation
+- **`Battle.h/.cpp`** - Complete battle engine with VCMI-style architecture
+- **`BattleEngine`** class - Manages combat flow, unit interactions, and AI decisions
+- **`AsciiBattleDisplay`** - Handles battle visualization and user feedback
+- **Army Integration** - Seamless connection between hero armies and battle units
+- **Result Processing** - Proper handling of victory, defeat, and army updates
+
+### Army and Combat Features
+- **Starting Armies** - Heroes begin with balanced forces (Peasants + Archers)
+- **Battle Preparation** - Automatic army-to-battle-unit conversion
+- **Casualty System** - Units can be wounded or killed, with proper tracking
+- **Survival Updates** - Post-battle army reflects actual battle casualties
+- **Strategic AI** - Intelligent target selection and combat decisions
+
+### Enhanced Gameplay Experience
+✅ **Full Combat System** - Complete turn-based tactical battles
+✅ **Army Management** - Heroes with persistent armies that grow and change
+✅ **Strategic Depth** - Meaningful combat decisions and consequences  
+✅ **Hero Progression** - Level ups from combat experience with stat bonuses
+✅ **Balanced Mechanics** - Proper damage formulas and AI behavior
+
+The game now features a complete tactical combat experience with persistent consequences, making exploration and monster encounters significantly more engaging and strategic.
