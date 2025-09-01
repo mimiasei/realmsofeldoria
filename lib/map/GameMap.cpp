@@ -161,16 +161,13 @@ void GameMap::moveHero(HeroID heroId, const Position& from, const Position& to) 
     if (isValidPosition(to)) {
         MapTile& toTile = getTile(to);
         
-        // Check for visitable objects
-        if (toTile.object != ObjectType::None) {
-            MapObject* obj = getObject(toTile.objectId);
-            if (obj && obj->canVisit(heroId)) {
-                obj->onVisit(heroId);
-            }
+        // Don't overwrite existing objects - heroes can stand on objects
+        // The client will handle interactions separately
+        // Only set hero as object if the tile was empty
+        if (toTile.object == ObjectType::None) {
+            toTile.object = ObjectType::Hero;
+            toTile.objectId = heroId;
         }
-        
-        toTile.object = ObjectType::Hero;
-        toTile.objectId = heroId;
     }
 }
 

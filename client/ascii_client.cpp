@@ -78,6 +78,7 @@ private:
         // Give Sir Arthur some starting troops
         hero1->getArmy().addCreatures(1, 10); // 10 peasants
         hero1->getArmy().addCreatures(2, 5);  // 5 archers
+        hero1->resetMovementPoints(); // Give full movement
         
         auto hero2 = std::make_unique<Hero>(2, "Lady Morgana", HeroClass::Wizard, Gender::Female);
         hero2->setPrimaryStats(3, 4, 8, 7);
@@ -88,6 +89,7 @@ private:
         // Give Lady Morgana some starting troops
         hero2->getArmy().addCreatures(1, 8);  // 8 peasants
         hero2->getArmy().addCreatures(2, 7);  // 7 archers
+        hero2->resetMovementPoints(); // Give full movement
         
         player->addHero(1);
         player->addHero(2);
@@ -423,8 +425,16 @@ private:
         GameMap* map = gameState.getMap();
         const MapTile& tile = map->getTile(pos);
         
+        // Debug output to see what's happening
+        /*
+        std::cout << "DEBUG: Position (" << pos.x << "," << pos.y << ") - ";
+        std::cout << "Object: " << static_cast<int>(tile.object) << ", ";
+        std::cout << "ObjectId: " << tile.objectId << std::endl;
+        */
+        
         // Only interact with objects that the hero steps directly on
-        if (tile.object != ObjectType::None && tile.objectId != 0) {
+        // Ignore Hero objects (heroes don't interact with themselves)
+        if (tile.object != ObjectType::None && tile.object != ObjectType::Hero && tile.objectId != 0) {
             MapObject* obj = map->getObject(tile.objectId);
             if (obj) {
                 std::cout << "\n>>> ";
