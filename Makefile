@@ -22,7 +22,7 @@ ASCII_CLIENT_SOURCES = $(CLIENT_SRCDIR)/ascii_client.cpp
 NCURSES_CLIENT_SOURCES = $(CLIENT_SRCDIR)/ncurses_client.cpp
 GRAPHICS_TEST_SOURCES = $(CLIENT_SRCDIR)/graphics_test.cpp
 MAP_TEST_SOURCES = $(CLIENT_SRCDIR)/map_test.cpp $(CLIENT_SRCDIR)/render/MapView.cpp
-GRAPHICS_CLIENT_SOURCES = $(CLIENT_SRCDIR)/graphics_client.cpp $(CLIENT_SRCDIR)/render/MapView.cpp $(CLIENT_SRCDIR)/ui/ResourceBar.cpp $(CLIENT_SRCDIR)/ui/HeroPanel.cpp
+GRAPHICS_CLIENT_SOURCES = $(CLIENT_SRCDIR)/graphics_client.cpp $(CLIENT_SRCDIR)/render/MapView.cpp $(CLIENT_SRCDIR)/ui/ResourceBar.cpp $(CLIENT_SRCDIR)/ui/HeroPanel.cpp $(CLIENT_SRCDIR)/ui/BattleWindow.cpp
 SERVER_SOURCES = $(shell find $(SERVER_SRCDIR) -name "*.cpp")
 
 # Object files

@@ -15,6 +15,7 @@
 #include "render/MapView.h"
 #include "ui/ResourceBar.h"
 #include "ui/HeroPanel.h"
+#include "ui/BattleWindow.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -29,9 +30,11 @@ private:
     std::unique_ptr<MapView> mapView;
     std::unique_ptr<ResourceBar> resourceBar;
     std::unique_ptr<HeroPanel> heroPanel;
+    std::unique_ptr<BattleWindow> battleWindow;
 
     bool running;
     Hero* selectedHero;
+    bool inBattle;
 
     void initializeGameState() {
         // Create player
@@ -239,6 +242,13 @@ private:
     void handleMouseClick(int x, int y, int button) {
         Point clickPos(x, y);
 
+        // If in battle, handle battle window clicks first
+        if (inBattle && battleWindow && battleWindow->visible) {
+            if (battleWindow->onClick(clickPos)) {
+                return;
+            }
+        }
+
         // Check UI elements first
         if (heroPanel && heroPanel->onClick(clickPos)) {
             refreshUI();
@@ -287,27 +297,52 @@ private:
                         }
 
                         if (monsterObj) {
-                            // Monster encounter - start battle!
+                            // Monster encounter - start battle UI!
                             MonsterGroup* monsters = static_cast<MonsterGroup*>(monsterObj);
 
-                            std::cout << "\nBattle! Encountering " << monsters->getCount() << " creatures!\n";
+                            // Create battle engine
+                            BattleEngine* battle = new BattleEngine(selectedHero);
 
-                            BattleResult result = conductBattle(selectedHero, monsters);
-
-                            if (result == BattleResult::Victory) {
-                                std::cout << "Victory! Monsters defeated!\n";
-                                // Remove the monster group from map
-                                gameState->getMap()->removeObject(monsterObj->getId());
-                                // Move hero to the position
-                                selectedHero->setPosition(targetPos);
-                                selectedHero->setMovementPoints(selectedHero->getMovementPoints() - 1);
-                            } else if (result == BattleResult::Defeat) {
-                                std::cout << "Defeat! Hero retreats...\n";
-                                // Hero loses movement points but doesn't move
-                                selectedHero->setMovementPoints(0);
+                            // Add hero's army to battle
+                            Army& army = selectedHero->getArmy();
+                            for (int i = 0; i < 7; i++) {
+                                const ArmySlot& slot = army.getSlot(i);
+                                if (slot.count > 0) {
+                                    battle->addPlayerUnit(slot.creatureId, slot.count);
+                                }
                             }
 
-                            refreshUI();
+                            // Add monster units to battle
+                            battle->addEnemyUnit(monsters->getCreatureType(), monsters->getCount());
+
+                            // Show battle window
+                            inBattle = true;
+                            battleWindow->startBattle(battle, gameState.get());
+                            battleWindow->setOnBattleComplete([this, battle, selectedHero = selectedHero,
+                                                              monsters, monsterObj, targetPos]() {
+                                BattleResult result = battleWindow->getBattleResult();
+
+                                // Update hero's army based on battle results
+                                updateHeroArmyAfterBattle(selectedHero, battle->getPlayerUnits());
+
+                                if (result == BattleResult::Victory) {
+                                    // Remove the monster group from map
+                                    gameState->getMap()->removeObject(monsterObj->getId());
+                                    // Move hero to the position
+                                    selectedHero->setPosition(targetPos);
+                                    selectedHero->setMovementPoints(selectedHero->getMovementPoints() - 1);
+                                    // Award experience
+                                    int expGained = battle->calculateExperienceGained();
+                                    selectedHero->gainExperience(expGained);
+                                } else if (result == BattleResult::Defeat) {
+                                    // Hero loses movement points but doesn't move
+                                    selectedHero->setMovementPoints(0);
+                                }
+
+                                delete battle;
+                                inBattle = false;
+                                refreshUI();
+                            });
                         } else {
                             // Normal movement
                             selectedHero->setPosition(targetPos);
@@ -391,13 +426,20 @@ private:
             mapView->render(canvas, *gameState->getMap(), *gameState);
         }
 
-        // Render UI elements
-        if (resourceBar) {
-            resourceBar->render(canvas);
+        // Render UI elements (if not in battle)
+        if (!inBattle) {
+            if (resourceBar) {
+                resourceBar->render(canvas);
+            }
+
+            if (heroPanel) {
+                heroPanel->render(canvas);
+            }
         }
 
-        if (heroPanel) {
-            heroPanel->render(canvas);
+        // Render battle window if active
+        if (inBattle && battleWindow && battleWindow->visible) {
+            battleWindow->render(canvas);
         }
 
         // Update screen
@@ -410,6 +452,7 @@ public:
         , screenSurface(nullptr)
         , running(false)
         , selectedHero(nullptr)
+        , inBattle(false)
     {
     }
 
@@ -456,6 +499,10 @@ public:
         resourceBar = std::make_unique<ResourceBar>(gameState.get());
         heroPanel = std::make_unique<HeroPanel>(gameState.get());
 
+        // Create battle window (centered on screen, 1920x1080)
+        battleWindow = std::make_unique<BattleWindow>(Point(0, 0), Point(1920, 1080));
+        battleWindow->setVisible(false); // Hidden by default
+
         // Select first hero if any exist
         Player* currentPlayer = gameState->getPlayer(gameState->getCurrentPlayer());
         if (currentPlayer && !currentPlayer->getHeroes().empty()) {
@@ -493,6 +540,7 @@ public:
     }
 
     void cleanup() {
+        battleWindow.reset();
         heroPanel.reset();
         resourceBar.reset();
         mapView.reset();
