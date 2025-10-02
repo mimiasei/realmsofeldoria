@@ -9,7 +9,12 @@ This file contains development commands and instructions for working with Realms
 make ascii
 ```
 
-### SDL2 Client (Graphical)
+### Graphics Client (Full UI - Phase 3)
+```bash
+make graphics
+```
+
+### SDL2 Client (Graphical - Legacy)
 ```bash
 make client
 ```
@@ -31,7 +36,12 @@ make all
 make run-ascii
 ```
 
-### Run SDL2 Client
+### Run Graphics Client (Full UI)
+```bash
+make run-graphics
+```
+
+### Run SDL2 Client (Legacy)
 ```bash
 make run-client
 ```
@@ -109,3 +119,4 @@ This will build and immediately run the ASCII version of the game for testing.
 - always reference the public vcmi github repository for code, realms of eldoria is mainly reusing the code from there.
 - always add summary of changes to the changes file
 - copy and thus reuse as much of the code from the vcmi repo on github as possible. do not reinvent the wheel!
+- the entire vcmi repo has been downloaded to /tmp/vcmi-temp

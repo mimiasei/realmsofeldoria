@@ -22,6 +22,7 @@ ASCII_CLIENT_SOURCES = $(CLIENT_SRCDIR)/ascii_client.cpp
 NCURSES_CLIENT_SOURCES = $(CLIENT_SRCDIR)/ncurses_client.cpp
 GRAPHICS_TEST_SOURCES = $(CLIENT_SRCDIR)/graphics_test.cpp
 MAP_TEST_SOURCES = $(CLIENT_SRCDIR)/map_test.cpp $(CLIENT_SRCDIR)/render/MapView.cpp
+GRAPHICS_CLIENT_SOURCES = $(CLIENT_SRCDIR)/graphics_client.cpp $(CLIENT_SRCDIR)/render/MapView.cpp $(CLIENT_SRCDIR)/ui/ResourceBar.cpp $(CLIENT_SRCDIR)/ui/HeroPanel.cpp
 SERVER_SOURCES = $(shell find $(SERVER_SRCDIR) -name "*.cpp")
 
 # Object files
@@ -31,6 +32,7 @@ ASCII_CLIENT_OBJECTS = $(ASCII_CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/c
 NCURSES_CLIENT_OBJECTS = $(NCURSES_CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
 GRAPHICS_TEST_OBJECTS = $(GRAPHICS_TEST_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
 MAP_TEST_OBJECTS = $(MAP_TEST_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
+GRAPHICS_CLIENT_OBJECTS = $(GRAPHICS_CLIENT_SOURCES:$(CLIENT_SRCDIR)/%.cpp=$(OBJDIR)/client/%.o)
 SERVER_OBJECTS = $(SERVER_SOURCES:$(SERVER_SRCDIR)/%.cpp=$(OBJDIR)/server/%.o)
 
 # Targets
@@ -39,9 +41,10 @@ ASCII_CLIENT_TARGET = $(BINDIR)/RealmsAscii
 NCURSES_CLIENT_TARGET = $(BINDIR)/RealmsNcurses
 GRAPHICS_TEST_TARGET = $(BINDIR)/GraphicsTest
 MAP_TEST_TARGET = $(BINDIR)/MapTest
+GRAPHICS_CLIENT_TARGET = $(BINDIR)/RealmsGraphics
 SERVER_TARGET = $(BINDIR)/RealmsServer
 
-.PHONY: all clean client ascii ncurses graphics-test map-test server dirs
+.PHONY: all clean client ascii ncurses graphics-test map-test graphics server dirs
 
 all: dirs ascii ncurses client server
 
@@ -50,6 +53,7 @@ ncurses: dirs $(NCURSES_CLIENT_TARGET)
 client: dirs $(SDL_CLIENT_TARGET)
 graphics-test: dirs $(GRAPHICS_TEST_TARGET)
 map-test: dirs $(MAP_TEST_TARGET)
+graphics: dirs $(GRAPHICS_CLIENT_TARGET)
 server: dirs $(SERVER_TARGET)
 
 # Create directories
@@ -64,8 +68,10 @@ dirs:
 	@mkdir -p $(OBJDIR)/lib/battle
 	@mkdir -p $(OBJDIR)/lib/geometry
 	@mkdir -p $(OBJDIR)/lib/render
+	@mkdir -p $(OBJDIR)/lib/gui
 	@mkdir -p $(OBJDIR)/client
 	@mkdir -p $(OBJDIR)/client/render
+	@mkdir -p $(OBJDIR)/client/ui
 	@mkdir -p $(OBJDIR)/server
 
 # Build SDL client
@@ -87,6 +93,10 @@ $(GRAPHICS_TEST_TARGET): $(LIB_OBJECTS) $(GRAPHICS_TEST_OBJECTS)
 # Build map test
 $(MAP_TEST_TARGET): $(LIB_OBJECTS) $(MAP_TEST_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lSDL2 -lSDL2main
+
+# Build graphics client (full UI) - only needs SDL2 and SDL2_ttf, not SDL2_image
+$(GRAPHICS_CLIENT_TARGET): $(LIB_OBJECTS) $(GRAPHICS_CLIENT_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lSDL2 -lSDL2main -lSDL2_ttf
 
 # Build server
 $(SERVER_TARGET): $(LIB_OBJECTS) $(SERVER_OBJECTS)
@@ -119,6 +129,9 @@ run-ascii: ascii
 
 run-ncurses: ncurses
 	cd $(BINDIR) && ./RealmsNcurses
+
+run-graphics: graphics
+	cd $(BINDIR) && ./RealmsGraphics
 
 run-client: client
 	cd $(BINDIR) && ./RealmsClient

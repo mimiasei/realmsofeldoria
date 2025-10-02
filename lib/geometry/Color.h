@@ -71,3 +71,6 @@ public:
 		return mean_lhs < mean_rhs;
 	}
 };
+
+// Alias for convenience
+using Color = ColorRGBA;
