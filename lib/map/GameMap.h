@@ -94,7 +94,7 @@ private:
     
 public:
     MonsterGroup(uint32_t id, const Position& pos, CreatureID creature, int cnt)
-        : MapObject(id, ObjectType::Monster, pos), creatureType(creature), count(cnt), neverFlees(false) {}
+        : MapObject(id, ObjectType::Monster, pos, false), creatureType(creature), count(cnt), neverFlees(false) {}
     
     CreatureID getCreatureType() const { return creatureType; }
     int getCount() const { return count; }

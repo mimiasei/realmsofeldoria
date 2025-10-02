@@ -108,3 +108,4 @@ make ascii && make run-ascii
 This will build and immediately run the ASCII version of the game for testing.
 - always reference the public vcmi github repository for code, realms of eldoria is mainly reusing the code from there.
 - always add summary of changes to the changes file
+- copy and thus reuse as much of the code from the vcmi repo on github as possible. do not reinvent the wheel!
